@@ -24,6 +24,7 @@ type UpdateWorkspaceForm = {
   branch: string;
   defaultTemplate?: string;
   executorAgent?: string;
+  triggerType?: "branch" | "tag";
 };
 
 export const WorkspaceGeneral = ({ workspaceData, orgTemplates, manageWorkspace }: Props) => {
@@ -97,6 +98,7 @@ export const WorkspaceGeneral = ({ workspaceData, orgTemplates, manageWorkspace 
               iacType: values.iacType,
               branch: values.branch,
               defaultTemplate: values.defaultTemplate,
+              triggerType: values.triggerType,
             },
           },
         },
@@ -159,6 +161,7 @@ export const WorkspaceGeneral = ({ workspaceData, orgTemplates, manageWorkspace 
             moduleSshKey: workspaceData.attributes?.moduleSshKey,
             executionMode: workspaceData.attributes?.executionMode,
             iacType: workspaceData.attributes?.iacType,
+            triggerType: workspaceData.attributes?.triggerType ?? "branch",
             branch: workspaceData.attributes?.branch,
             defaultTemplate: workspaceData.attributes?.defaultTemplate,
             executorAgent:
@@ -220,6 +223,16 @@ export const WorkspaceGeneral = ({ workspaceData, orgTemplates, manageWorkspace 
             }
           >
             <Input disabled={!manageWorkspace} />
+          </Form.Item>
+          <Form.Item
+            name="triggerType"
+            label="Trigger Type"
+            tooltip="Choose how this workspace should be triggered from your VCS (e.g. GitHub)"
+          >
+            <Select style={{ width: 250 }} disabled={!manageWorkspace}>
+              <Option key="branch" value="branch">Branch</Option>
+              <Option key="tag" value="tag">Tag</Option>
+            </Select>
           </Form.Item>
           <Form.Item
             name="branch"

@@ -14,6 +14,7 @@ type Props = {
 type CreateJobForm = {
   templateId: string;
   branchName: string;
+  triggerType: "branch" | "tag";
 };
 
 export const CreateJob = ({ changeJob }: Props) => {
@@ -21,6 +22,7 @@ export const CreateJob = ({ changeJob }: Props) => {
   const organizationId = sessionStorage.getItem(ORGANIZATION_ARCHIVE);
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm<CreateJobForm>();
+  const triggerType = Form.useWatch("triggerType", form);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [branchName, setBranchName] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -62,6 +64,7 @@ export const CreateJob = ({ changeJob }: Props) => {
           templateReference: values.templateId,
           overrideBranch: values.branchName,
           via: "UI",
+          //triggerType: values.triggerType,
         },
         relationships: {
           workspace: {
@@ -147,12 +150,24 @@ export const CreateJob = ({ changeJob }: Props) => {
               )}
             </Form.Item>
             <Form.Item
+              name="triggerType"
+              label="Trigger type"
+              initialValue="branch"
+              rules={[{ required: true }]}
+            >
+              <Select style={{ width: 250 }}>
+                <Select.Option value="branch">Branch</Select.Option>
+                <Select.Option value="tag">Tag</Select.Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item
               name="branchName"
-              label="Branch Name"
-              tooltip="Select the branch to use for this job. When using the CLI driven workflow do not modify the branch name."
+              label={triggerType === "tag" ? "Tag name" : "Branch name"}
+              tooltip={`Select the ${triggerType === "tag" ? "tag" : "branch"} to use for this job.`}
               initialValue={branchName}
             >
-              <Input />
+              <Input placeholder={`(default ${triggerType === "tag" ? "tag" : "branch"})`} />
             </Form.Item>
           </Form>
         </Space>

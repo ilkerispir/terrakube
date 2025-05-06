@@ -54,6 +54,7 @@ type CreateWorkspaceForm = {
   iacType: string;
   defaultTemplate: string;
   sshKey?: string;
+  triggerType: "branch" | "tag";
 };
 
 export const CreateWorkspace = () => {
@@ -229,6 +230,7 @@ export const CreateWorkspace = () => {
   };
 
   const [form] = Form.useForm();
+  const triggerType = Form.useWatch("triggerType", form);
   const handleGitContinueClick = () => {
     setCurrent(3);
     setStep4Hidden(false);
@@ -629,13 +631,26 @@ export const CreateWorkspace = () => {
               </Form.Item>
 
               <Form.Item
+                name="triggerType"
+                label="Trigger type"
+                tooltip="Select whether runs should trigger from a branch or tag"
+                initialValue="branch"
+                rules={[{ required: true }]}
+              >
+                <Select style={{ width: 250 }}>
+                  <Option value="branch">Branch</Option>
+                  <Option value="tag">Tag</Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item
                 name="branch"
-                label="VCS branch"
-                extra="The branch from which the runs are kicked off, this is used for runs issued from the UI."
+                label={triggerType === "tag" ? "VCS tag" : "VCS branch"}
+                extra={`The ${triggerType === "tag" ? "tag" : "branch"} from which the runs are kicked off.`}
                 rules={[{ required: true }]}
                 hidden={!versionControlFlow}
               >
-                <Input placeholder="(default branch)" />
+                <Input placeholder={`(default ${triggerType || "branch"})`} />
               </Form.Item>
               <Form.Item
                 name="folder"

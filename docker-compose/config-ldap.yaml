@@ -1,4 +1,4 @@
-issuer: https://terrakube-dex.platform.local/dex
+issuer: http://terrakube-dex:5556/dex
 
 storage:
   type: memory
@@ -66,6 +66,7 @@ connectors:
 staticClients:
   - id: terrakube-app
     redirectURIs:
+      - "http://localhost:3000"
       - "https://terrakube.platform.local"
       - "https://terrakube-api.platform.local"
       - "https://terrakube-dex.platform.local"
