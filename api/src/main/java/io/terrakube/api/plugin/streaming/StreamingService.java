@@ -22,22 +22,25 @@ public class StreamingService {
 
     StepRepository stepRepository;
 
-    public String getCurrentLogs(String stepId){
+    public String getCurrentLogs(String stepId) {
         TextStringBuilder currentLogs = new TextStringBuilder();
         try {
             Step step = stepRepository.getReferenceById(UUID.fromString(stepId));
-            if(!step.getStatus().equals(JobStatus.completed) && !step.getStatus().equals(JobStatus.failed)) {
-                List<MapRecord> streamData = redisTemplate.opsForStream().read(StreamOffset.fromStart(String.valueOf(step.getJob().getId())), StreamOffset.latest(String.valueOf(step.getJob().getId())));
-                for (MapRecord mapRecord : streamData) {
-                    StringRecord stringRecord = StringRecord.of(mapRecord);
-                    String output = stringRecord.getValue().get("output");
+            String streamKey = String.valueOf(step.getJob().getId());
+            // Always try Redis first - ephemeral jobs may complete before UI polls
+            List<MapRecord> streamData = redisTemplate.opsForStream().read(StreamOffset.fromStart(streamKey));
+            for (MapRecord mapRecord : streamData) {
+                StringRecord stringRecord = StringRecord.of(mapRecord);
+                String output = stringRecord.getValue().get("output");
+                if (output != null) {
                     currentLogs.appendln(output);
                 }
-                log.info("Logs Size: {}", currentLogs.size());
             }
-        } catch (Exception ex ){
-            log.error(ex.getMessage());
-
+            if (currentLogs.size() > 0) {
+                log.info("Logs Size from Redis: {}", currentLogs.size());
+            }
+        } catch (Exception ex) {
+            log.error("Error reading Redis stream: {}", ex.getMessage());
         }
         return currentLogs.toString();
     }
