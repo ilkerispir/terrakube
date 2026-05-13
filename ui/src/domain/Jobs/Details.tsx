@@ -226,13 +226,33 @@ export const DetailsJob = ({ jobId }: Props) => {
     );
   };
 
+  const getStepStatusLabel = (status: string, name: string): string => {
+    switch (status) {
+      case "completed":
+        return `${name} completed`;
+      case "noChanges":
+        return `${name} — no changes`;
+      case "running":
+        return `${name} running...`;
+      case "failed":
+        return `${name} failed`;
+      case "cancelled":
+        return `${name} cancelled`;
+      case "notExecuted":
+      case "pending":
+        return name;
+      default:
+        return name;
+    }
+  };
+
   const renderStepLabel = (item: JobStep) => {
+    const icon = getIconStatus(item);
+    const label = getStepStatusLabel(item.status, item.name);
     return (
-      <span>
-        {getIconStatus(item)}
-        <h3 style={{ display: "inline" }}>
-          &nbsp; {item.name} {item.status}
-        </h3>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+        {icon}
+        <h3 style={{ display: "inline", margin: 0 }}>{label}</h3>
       </span>
     );
   };
@@ -270,7 +290,9 @@ export const DetailsJob = ({ jobId }: Props) => {
       case "noChanges":
         return <CheckCircleOutlined style={{ fontSize: "20px", color: "#52c41a" }} />;
       case "notExecuted":
-        return <CheckCircleOutlined style={{ fontSize: "20px", color: "#fa8f37" }} />;
+        return <ClockCircleOutlined style={{ fontSize: "20px", color: "#8c8c8c" }} />;
+      case "pending":
+        return <ClockCircleOutlined style={{ fontSize: "20px", color: "#8c8c8c" }} />;
       case "running":
         return <SyncOutlined spin style={{ color: "#108ee9", fontSize: "20px" }} />;
       case "failed":
@@ -278,7 +300,7 @@ export const DetailsJob = ({ jobId }: Props) => {
       case "cancelled":
         return <CloseCircleOutlined style={{ fontSize: "20px", color: "#FB0136" }} />;
       default:
-        return <ClockCircleOutlined style={{ fontSize: "20px" }} />;
+        return null;
     }
   };
 
